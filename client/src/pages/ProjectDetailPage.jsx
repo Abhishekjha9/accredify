@@ -185,7 +185,7 @@ const ProjectDetailPage = () => {
         }
     };
 
-    if (loading) return <div className="container" style={{ paddingTop: '4rem', textAlign: 'center' }}>Loading project...</div>;
+    if (loading) return <div className="project-detail-page"><div className="container" style={{ paddingTop: '4rem', textAlign: 'center', color: 'var(--flux-text-muted)' }}>Loading project...</div></div>;
     if (!project) return null;
 
     const revisionPercentage = (project.revisionsUsed / project.revisionLimit) * 100;
@@ -194,57 +194,56 @@ const ProjectDetailPage = () => {
     if (revisionPercentage >= 100) progressColor = 'var(--danger)';
 
     return (
-        <div className="container" style={{ paddingBottom: '4rem' }}>
-            <button
-                onClick={() => navigate('/')}
-                className="btn-secondary flex-center"
-                style={{ gap: '0.5rem', marginBottom: '2rem', padding: '0.5rem 1rem', border: 'none' }}
-            >
-                <ArrowLeft size={16} /> Back to Dashboard
-            </button>
+        <div className="project-detail-page">
+            <div className="container" style={{ padding: '1.75rem 1.5rem 4rem' }}>
+                <button
+                    onClick={() => navigate('/')}
+                    className="btn btn-secondary"
+                    style={{ gap: '0.5rem', marginBottom: '1.5rem', padding: '0.5rem 1rem', fontSize: '0.9375rem' }}
+                >
+                    <ArrowLeft size={16} /> Back to Dashboard
+                </button>
 
-            {/* Header */}
-            <div className="glass-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
-                <div className="flex-between" style={{ marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <h1 style={{ fontSize: '2rem', margin: 0 }}>{project.title}</h1>
-                    <div className="flex-center" style={{ gap: '1rem' }}>
-                        <span className={`badge badge-${project.status === 'active' ? 'primary' : project.status === 'completed' ? 'success' : 'neutral'}`} style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>
-                            {project.status.toUpperCase()}
-                        </span>
-                        {isClient && project.status === 'draft' && (
-                            <button className="btn btn-success" onClick={handleApprove}>
-                                <CheckCircle size={18} /> Approve Project
-                            </button>
-                        )}
+                {/* Header */}
+                <div className="project-detail-header">
+                    <div className="flex-between" style={{ flexWrap: 'wrap', gap: '1rem' }}>
+                        <h1 className="project-detail-title">{project.title}</h1>
+                        <div className="flex-center" style={{ gap: '1rem' }}>
+                            <span className={`project-detail-status ${project.status === 'draft' ? 'project-detail-status-neutral' : ''}`} style={project.status === 'completed' ? { background: 'var(--success)' } : {}}>
+                                {project.status.toUpperCase()}
+                            </span>
+                            {isClient && project.status === 'draft' && (
+                                <button className="btn btn-success" onClick={handleApprove}>
+                                    <CheckCircle size={18} /> Approve Project
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                    <div className="project-detail-meta">
+                        <span>Freelancer: {project.freelancerId?.name || project.freelancerId}</span>
+                        <span>Client: {project.clientId?.name || project.clientId}</span>
+                        <span>Created: {new Date(project.createdAt).toLocaleDateString()}</span>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                    <div><strong>Freelancer:</strong> {project.freelancerId?.name || project.freelancerId}</div>
-                    <div><strong>Client:</strong> {project.clientId?.name || project.clientId}</div>
-                    <div><strong>Created:</strong> {new Date(project.createdAt).toLocaleDateString()}</div>
-                </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: '2rem' }} className="responsive-grid">
-                {/* Left Column (Checklist & Details) */}
-                <div>
-                    <div className="glass-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
-                        <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Scope Checklist</h2>
-                        <ul style={{ listStyle: 'none', padding: 0 }}>
-                            {(project.scopeChecklist || []).map((item, index) => (
-                                <li key={index} style={{ padding: '1rem', background: 'var(--bg-dark)', marginBottom: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid var(--text-muted)', flexShrink: 0 }}></div>
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: '1.25rem' }} className="responsive-grid">
+                    <div>
+                        <div className="section-card">
+                            <h2 className="section-title">Scope Checklist</h2>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                {(project.scopeChecklist || []).map((item, index) => (
+                                    <li key={index} className="scope-item">
+                                        <div className="scope-item-dot" />
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
 
                     {/* Deliverables */}
-                    <div className="glass-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
-                        <div className="flex-between" style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                            <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Deliverables</h2>
+                    <div className="section-card">
+                        <div className="flex-between" style={{ marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            <h2 className="section-title" style={{ marginBottom: 0, paddingBottom: 0, borderBottom: 'none' }}>Deliverables</h2>
                             {isFreelancer && project.status === 'active' && (
                                 <button type="button" className="btn btn-primary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }} onClick={() => setShowDeliverableForm(!showDeliverableForm)}>
                                     <Plus size={16} /> Add Deliverable
@@ -256,7 +255,7 @@ const ProjectDetailPage = () => {
                             <motion.form
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
-                                style={{ background: 'var(--bg-dark)', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', border: '1px solid var(--border)' }}
+                                style={{ background: 'var(--flux-main-bg)', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', border: '1px solid #e2e8f0' }}
                                 onSubmit={submitDeliverable}
                             >
                                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
@@ -294,31 +293,35 @@ const ProjectDetailPage = () => {
                         )}
 
                         {(!project.deliverables || project.deliverables.length === 0) ? (
-                            <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem 0' }}>No deliverables yet.</div>
+                            <div style={{ textAlign: 'center', color: 'var(--flux-text-muted)', padding: '2rem 0' }}>No deliverables yet.</div>
                         ) : (
-                            <ul style={{ listStyle: 'none', padding: 0 }}>
+                            <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
                                 {project.deliverables.map((d) => (
                                     <motion.li
                                         key={d._id}
+                                        className="deliverable-item"
                                         initial={{ opacity: 0, y: 8 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        style={{ padding: '1rem', background: 'var(--bg-dark)', marginBottom: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}
                                     >
                                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
                                             <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                                                    {d.type === 'file' ? <FileText size={16} color="var(--text-muted)" /> : <LinkIcon size={16} color="var(--text-muted)" />}
-                                                    <strong>{d.title}</strong>
-                                                    <span className={`badge badge-${d.status === 'accepted' ? 'success' : d.status === 'revision_requested' ? 'warning' : 'neutral'}`} style={{ fontSize: '0.7rem' }}>{d.status?.replace('_', ' ')}</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+                                                    {d.type === 'file' ? <FileText size={16} color="var(--flux-text-muted)" /> : <LinkIcon size={16} color="var(--flux-text-muted)" />}
+                                                    <strong style={{ color: 'var(--flux-text)' }}>{d.title}</strong>
+                                                    {d.status === 'revision_requested' ? (
+                                                        <span className="deliverable-tag-revision">REVISION REQUESTED</span>
+                                                    ) : (
+                                                        <span className={`badge badge-${d.status === 'accepted' ? 'success' : 'neutral'}`} style={{ fontSize: '0.7rem' }}>{d.status?.replace('_', ' ')}</span>
+                                                    )}
                                                 </div>
-                                                {d.description && <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: '0.25rem 0' }}>{d.description}</p>}
+                                                {d.description && <p style={{ fontSize: '0.875rem', color: 'var(--flux-text-muted)', margin: '0.25rem 0' }}>{d.description}</p>}
                                                 <a href={d.link.startsWith('http') ? d.link : (d.link.startsWith('/') ? d.link : '/' + d.link)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.875rem', color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
                                                     {d.type === 'file' ? 'Open file' : 'Open link'} <ExternalLink size={14} />
                                                 </a>
                                                 {d.status === 'revision_requested' && d.clientFeedback && (
-                                                    <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: 'var(--bg-card)', borderRadius: 'var(--radius-md)', borderLeft: '3px solid var(--warning)', display: 'flex', gap: '0.5rem' }}>
+                                                    <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: 'var(--flux-main-bg)', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0', borderLeft: '3px solid var(--warning)', display: 'flex', gap: '0.5rem' }}>
                                                         <MessageSquare size={16} color="var(--warning)" style={{ flexShrink: 0 }} />
-                                                        <span style={{ fontSize: '0.875rem' }}>{d.clientFeedback}</span>
+                                                        <span style={{ fontSize: '0.875rem', color: 'var(--flux-text)' }}>{d.clientFeedback}</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -333,7 +336,7 @@ const ProjectDetailPage = () => {
                                                 </div>
                                             )}
                                         </div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Submitted {new Date(d.submittedAt).toLocaleString()}</div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--flux-text-muted)', marginTop: '0.5rem' }}>Submitted {new Date(d.submittedAt).toLocaleString()}</div>
                                     </motion.li>
                                 ))}
                             </ul>
@@ -343,7 +346,7 @@ const ProjectDetailPage = () => {
                             <motion.form
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                style={{ marginTop: '1rem', padding: '1rem', background: 'var(--bg-dark)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}
+                                style={{ marginTop: '1rem', padding: '1rem', background: 'var(--flux-main-bg)', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0' }}
                                 onSubmit={handleRequestRevision}
                             >
                                 <div className="input-group" style={{ marginBottom: '0.75rem' }}>
@@ -358,9 +361,9 @@ const ProjectDetailPage = () => {
                         )}
                     </div>
 
-                    <div className="glass-card" style={{ padding: '2rem' }}>
-                        <div className="flex-between" style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
-                            <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Change Requests</h2>
+                    <div className="section-card">
+                        <div className="flex-between" style={{ marginBottom: '1rem' }}>
+                            <h2 className="section-title" style={{ marginBottom: 0, paddingBottom: 0, borderBottom: 'none' }}>Change Requests</h2>
                             {isClient && (
                                 <button type="button" className="btn btn-secondary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }} onClick={() => setShowCrForm(!showCrForm)}>
                                     <Plus size={16} /> Log Change
@@ -372,7 +375,7 @@ const ProjectDetailPage = () => {
                             <motion.form
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
-                                style={{ background: 'var(--bg-dark)', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', border: '1px solid var(--border)' }}
+                                style={{ background: 'var(--flux-main-bg)', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', border: '1px solid #e2e8f0' }}
                                 onSubmit={submitChangeRequest}
                             >
                                 <div className="input-group" style={{ marginBottom: '1rem' }}>
@@ -384,7 +387,7 @@ const ProjectDetailPage = () => {
                         )}
 
                         {(!project.changeRequests || project.changeRequests.length === 0) ? (
-                            <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem 0' }}>No change requests logged yet.</div>
+                            <div style={{ textAlign: 'center', color: 'var(--flux-text-muted)', padding: '2rem 0' }}>No change requests logged yet.</div>
                         ) : (
                             <ul style={{ listStyle: 'none', padding: 0 }}>
                                 {project.changeRequests.map((cr) => (
@@ -392,9 +395,9 @@ const ProjectDetailPage = () => {
                                         key={cr._id}
                                         initial={{ opacity: 0, y: 8 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        style={{ padding: '1rem', background: 'var(--bg-dark)', marginBottom: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}
+                                        style={{ padding: '1rem', background: 'var(--flux-main-bg)', marginBottom: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0' }}
                                     >
-                                        <p style={{ margin: '0 0 0.5rem 0' }}>{cr.description}</p>
+                                        <p style={{ margin: '0 0 0.5rem 0', fontSize: '1rem' }}>{cr.description}</p>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
                                             {cr.classification ? (
                                                 <>
@@ -402,7 +405,7 @@ const ProjectDetailPage = () => {
                                                         {cr.classification === 'out-of-scope' ? 'Out-of-scope' : 'In-scope'}
                                                     </span>
                                                     {cr.classification === 'out-of-scope' && (cr.priceAdjustment || cr.timelineAdjustment) && (
-                                                        <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                                                        <span style={{ fontSize: '0.875rem', color: 'var(--flux-text-muted)' }}>
                                                             {cr.priceAdjustment ? `+$${cr.priceAdjustment} ` : ''}
                                                             {cr.timelineAdjustment ? `+${cr.timelineAdjustment} days` : ''}
                                                         </span>
@@ -412,7 +415,7 @@ const ProjectDetailPage = () => {
                                                 <span className="badge badge-neutral" style={{ fontSize: '0.75rem' }}>Pending scope marking</span>
                                             )}
                                         </div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(cr.createdAt).toLocaleString()}</div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--flux-text-muted)' }}>{new Date(cr.createdAt).toLocaleString()}</div>
                                         {isFreelancer && !cr.classification && (
                                             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
                                                 <button type="button" className="btn btn-success" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }} onClick={() => handleClassifyInScope(cr._id)}>
@@ -447,17 +450,17 @@ const ProjectDetailPage = () => {
 
                 {/* Right Column (Sidebar / Revisions) */}
                 <div>
-                    <div className="glass-card" style={{ padding: '2rem', position: 'sticky', top: '5rem' }}>
-                        <h2 className="flex-center" style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', gap: '0.5rem', justifyContent: 'flex-start' }}>
+                    <div className="revision-tracker-card">
+                        <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <FileEdit size={20} /> Revision Tracker
                         </h2>
 
-                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '1rem' }}>
-                            <span style={{ fontSize: '3rem', fontWeight: 700, lineHeight: 1 }}>{project.revisionsUsed}</span>
-                            <span style={{ color: 'var(--text-muted)', paddingBottom: '0.5rem' }}>/ {project.revisionLimit} Used</span>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            <span className="revision-big">{project.revisionsUsed}</span>
+                            <span style={{ color: 'var(--flux-text-muted)', paddingBottom: '0.5rem', fontSize: '1.0625rem', fontWeight: 500 }}>/ {project.revisionLimit} Used</span>
                         </div>
 
-                        <div style={{ height: '8px', background: 'var(--bg-dark)', borderRadius: '4px', overflow: 'hidden', marginBottom: '2rem', border: '1px solid var(--border)' }}>
+                        <div className="revision-bar">
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${Math.min(revisionPercentage, 100)}%` }}
@@ -467,7 +470,7 @@ const ProjectDetailPage = () => {
                         </div>
 
                         {project.revisionsUsed >= project.revisionLimit ? (
-                            <div style={{ background: 'var(--danger-bg)', color: 'var(--danger)', padding: '1rem', borderRadius: 'var(--radius-md)', fontSize: '0.875rem', display: 'flex', gap: '0.5rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                            <div className="revision-warning">
                                 <AlertCircle size={18} style={{ flexShrink: 0 }} /> Revision limit reached. Any further changes require an out-of-scope Change Request.
                             </div>
                         ) : (
@@ -486,6 +489,7 @@ const ProjectDetailPage = () => {
           .responsive-grid { grid-template-columns: 1fr !important; }
         }
       `}} />
+            </div>
         </div>
     );
 };

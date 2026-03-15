@@ -19,7 +19,7 @@ const seed = async () => {
         console.log('Cleared existing data.');
 
         // Default passwords will trigger the pre-save hook to hash them
-        await User.create([
+        const users = await User.create([
             {
                 name: 'Freelancer',
                 email: 'freelancer@test.com',
@@ -34,9 +34,14 @@ const seed = async () => {
             }
         ]);
 
+        const freelancer = users.find(u => u.role === 'freelancer');
+        const client = users.find(u => u.role === 'client');
+
         console.log('✅ Accounts created successfully:');
         console.log('Freelancer -> freelancer@test.com / freelancer123');
+        console.log('Freelancer user ID:', freelancer._id.toString());
         console.log('Client     -> client@test.com / client123');
+        console.log('Client user ID:  ', client._id.toString());
 
         process.exit(0);
     } catch (err) {

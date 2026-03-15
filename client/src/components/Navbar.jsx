@@ -1,82 +1,74 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, ShieldCheck, LogOut, User } from 'lucide-react';
+import { ShieldCheck, LogOut, User, ChevronDown, UserCircle } from 'lucide-react';
 
 const Navbar = () => {
     const { user, logout, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false);
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleLogout = () => {
+        setDropdownOpen(false);
         logout();
         navigate('/login');
     };
 
+    const shortId = user?.id ? String(user.id).slice(-6) : '';
+
     return (
-        <nav style={{
-            background: 'var(--glass-bg)',
-            backdropFilter: 'blur(12px)',
-            borderBottom: '1px solid var(--glass-border)',
-            position: 'sticky',
-            top: 0,
-            zIndex: 50
-        }}>
-            <div className="container flex-between" style={{ height: '4rem' }}>
-                <Link
-                    to="/"
-                    className="flex-center"
-                    style={{ gap: '0.5rem', fontSize: '1.25rem', fontWeight: 700 }}
-                >
-                    <div style={{
-                        background: 'var(--primary)',
-                        padding: '0.25rem',
-                        borderRadius: '0.5rem',
-                        display: 'flex',
-                        boxShadow: 'var(--shadow-glow)'
-                    }}>
-                        <ShieldCheck size={24} color="white" />
-                    </div>
-                    Accredify
+        <nav className="navbar-flux">
+            <div className="navbar-flux-inner">
+                <Link to="/" className="navbar-flux-logo">
+                    <span className="navbar-flux-logo-icon">
+                        <ShieldCheck size={22} color="#84cc16" />
+                    </span>
+                    <span>Accredify</span>
                 </Link>
 
                 {isAuthenticated ? (
-                    <div className="flex-center" style={{ gap: '1.5rem' }}>
-                        <div className="flex-center" style={{ gap: '0.75rem' }}>
-                            <div
-                                className="flex-center"
-                                style={{
-                                    background: 'var(--bg-card)',
-                                    width: '2.25rem',
-                                    height: '2.25rem',
-                                    borderRadius: '50%',
-                                    border: '1px solid var(--border)'
-                                }}
-                            >
-                                <User size={16} color="var(--text-muted)" />
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>{user.name}</div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                    <span className={`badge ${user.role === 'client' ? 'badge-primary' : 'badge-success'}`} style={{ padding: '0 0.5rem', fontSize: '0.65rem' }}>
-                                        {user.role}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
+                    <div className="navbar-flux-profile-wrap" ref={dropdownRef}>
                         <button
-                            onClick={handleLogout}
-                            className="btn btn-secondary"
-                            style={{ padding: '0.5rem', borderRadius: '50%' }}
-                            title="Logout"
+                            type="button"
+                            className="navbar-flux-profile-trigger"
+                            onClick={() => setDropdownOpen((o) => !o)}
+                            aria-expanded={dropdownOpen}
+                            aria-haspopup="true"
                         >
-                            <LogOut size={18} />
+                            <div className="navbar-flux-avatar">
+                                <User size={18} color="var(--flux-text-muted)" />
+                            </div>
+                            <div className="navbar-flux-user">
+                                <span className="navbar-flux-name">{user.name}</span>
+                                <span className="navbar-flux-role">{user.role}</span>
+                            </div>
+                            <ChevronDown size={18} color="var(--flux-text-muted)" style={{ flexShrink: 0, transform: dropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
                         </button>
+                        {dropdownOpen && (
+                            <div className="navbar-flux-dropdown">
+                                <div className="navbar-flux-dropdown-id">ID: {shortId}</div>
+                                <Link to="/profile" className="navbar-flux-dropdown-item" onClick={() => setDropdownOpen(false)}>
+                                    <UserCircle size={18} /> Profile
+                                </Link>
+                                <button type="button" className="navbar-flux-dropdown-item navbar-flux-dropdown-logout" onClick={handleLogout}>
+                                    <LogOut size={18} /> Log out
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="flex-center" style={{ gap: '1rem' }}>
                         <Link to="/login" className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }}>Log in</Link>
-                        <Link to="/register" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Sign up</Link>
+                        <Link to="/register" className="btn btn-primary" style={{ padding: '0.5rem 1rem', background: 'var(--flux-accent)' }}>Sign up</Link>
                     </div>
                 )}
             </div>

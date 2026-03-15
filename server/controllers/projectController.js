@@ -1,4 +1,28 @@
 const projectService = require('../services/projectService');
+const User = require('../models/User');
+
+/**
+ * Resolve short client ID (last 6 chars of MongoDB _id) to full ObjectId.
+ * If clientId is 6 hex chars, find the client user whose _id ends with it.
+ */
+const resolveClientId = async (clientId) => {
+    if (!clientId || typeof clientId !== 'string') return clientId;
+    const trimmed = clientId.trim();
+    if (trimmed.length !== 6 || !/^[a-f0-9]{6}$/i.test(trimmed)) return clientId;
+    const clients = await User.find({ role: 'client' }).select('_id').lean();
+    const match = clients.filter((u) => String(u._id).slice(-6).toLowerCase() === trimmed.toLowerCase());
+    if (match.length === 0) {
+        const err = new Error('No client found with that short ID');
+        err.statusCode = 400;
+        throw err;
+    }
+    if (match.length > 1) {
+        const err = new Error('Short ID matches multiple clients; please use the full client ID');
+        err.statusCode = 400;
+        throw err;
+    }
+    return match[0]._id;
+};
 
 /**
  * @desc    Create a new project
@@ -7,8 +31,10 @@ const projectService = require('../services/projectService');
  */
 const createProject = async (req, res, next) => {
     try {
+        const resolvedClientId = await resolveClientId(req.body.clientId);
         const data = {
             ...req.body,
+            clientId: resolvedClientId,
             freelancerId: req.user._id,
         };
 

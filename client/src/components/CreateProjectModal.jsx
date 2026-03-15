@@ -125,12 +125,12 @@ const CreateProjectModal = ({ isOpen, onClose, onProjectCreated }) => {
                                 name="clientId"
                                 id="clientId"
                                 className="input-field"
-                                placeholder="Client's user ID"
+                                placeholder="6-character short ID (from Profile) or full ID"
                                 value={formData.clientId}
                                 onChange={handleChange}
                             />
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', gap: '0.25rem', alignItems: 'center', marginTop: '0.25rem' }}>
-                                <AlertCircle size={12} /> Note: In production this would be a client drop-down selection
+                                <AlertCircle size={12} /> Use the client&apos;s short ID from their Profile (e.g. 3d167a) or their full user ID
                             </div>
                         </div>
 

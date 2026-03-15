@@ -129,6 +129,10 @@ export const usersAPI = {
         const response = await api.get(`/users/${userId}`);
         return response.data;
     },
+    getFreelancerProjects: async (freelancerId) => {
+        const response = await api.get(`/users/${freelancerId}/projects`);
+        return response.data;
+    },
 };
 
 // ------------- Conversations API (user-to-user chat) -------------

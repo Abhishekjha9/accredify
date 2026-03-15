@@ -101,7 +101,6 @@ function App() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
-
         <Toaster
           position="top-right"
           toastOptions={{

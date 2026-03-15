@@ -133,6 +133,34 @@ const incrementRevision = async (projectId) => {
 };
 
 /**
+ * Get project counts for a user (for AI assistant context).
+ * @returns { Promise<{ ongoing: number, total: number, completed: number }> }
+ */
+const getProjectCountsForUser = async (userId, role) => {
+    const baseQuery = role === 'freelancer' ? { freelancerId: userId } : { clientId: userId };
+    const [total, ongoing, completed] = await Promise.all([
+        Project.countDocuments(baseQuery),
+        Project.countDocuments({ ...baseQuery, status: 'active' }),
+        Project.countDocuments({ ...baseQuery, status: 'completed' }),
+    ]);
+    return { total, ongoing, completed };
+};
+
+/**
+ * Get a short list of project id + title for the user (for AI "open project X").
+ * @returns { Promise<Array<{ id: string, title: string }>> }
+ */
+const getProjectListForUser = async (userId, role, limit = 25) => {
+    const query = role === 'freelancer' ? { freelancerId: userId } : { clientId: userId };
+    const list = await Project.find(query)
+        .sort({ createdAt: -1 })
+        .select('_id title')
+        .limit(limit)
+        .lean();
+    return list.map((p) => ({ id: String(p._id), title: p.title || 'Untitled' }));
+};
+
+/**
  * Get all projects involving the specified user ID (freelancer or client).
  */
 const getUserProjects = async (userId, role) => {
@@ -143,6 +171,21 @@ const getUserProjects = async (userId, role) => {
         .populate('freelancerId', 'name email')
         .populate('clientId', 'name email');
 
+    return projects;
+};
+
+/**
+ * Get projects where the given user is the freelancer and the current user is the client.
+ * Used when a client views a freelancer's profile to see their shared projects.
+ */
+const getProjectsWithFreelancerForClient = async (freelancerId, clientId) => {
+    const projects = await Project.find({
+        freelancerId,
+        clientId,
+    })
+        .sort({ createdAt: -1 })
+        .select('_id title status createdAt completedAt')
+        .lean();
     return projects;
 };
 
@@ -354,6 +397,8 @@ module.exports = {
     addChangeRequest,
     classifyChangeRequest,
     incrementRevision,
+    getProjectCountsForUser,
+    getProjectListForUser,
     getUserProjects,
     addDeliverable,
     acceptDeliverable,
@@ -361,4 +406,5 @@ module.exports = {
     completeProject,
     getProjectMessages,
     sendProjectMessage,
+    getProjectsWithFreelancerForClient,
 };

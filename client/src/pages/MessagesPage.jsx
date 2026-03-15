@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { conversationAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -33,11 +32,8 @@ const MessagesPage = () => {
         }
     };
 
-    useEffect(() => {
-        fetchConversations();
-    }, []);
+    useEffect(() => { fetchConversations(); }, []);
 
-    // When ?with=userId, get or create conversation and select it
     useEffect(() => {
         if (!withUserId || !user?.id) return;
         let cancelled = false;
@@ -105,150 +101,106 @@ const MessagesPage = () => {
     const isMe = (senderId) => senderId && user?.id && String(senderId._id || senderId) === String(user.id);
 
     return (
-        <div
-            className="messages-page-full"
-            style={{
-                position: 'fixed',
-                top: '4rem',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                display: 'flex',
-                background: 'var(--flux-main-bg)',
-                zIndex: 10,
-            }}
-        >
-            {/* Conversation list */}
-            <div
-                style={{
-                    width: 280,
-                    minWidth: 280,
-                    borderRight: '1px solid #e2e8f0',
-                    background: 'var(--flux-card-bg)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    overflow: 'hidden',
-                    flexShrink: 0,
-                }}
-            >
-                    <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', fontWeight: 600, color: 'var(--flux-text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <MessageCircle size={22} color="var(--flux-text-muted)" /> Messages
-                    </div>
-                    <div style={{ flex: 1, overflowY: 'auto' }}>
-                        {loadingConv ? (
-                            <div style={{ padding: '1rem', color: 'var(--flux-text-muted)', fontSize: '0.875rem' }}>Loading…</div>
-                        ) : conversations.length === 0 ? (
-                            <div style={{ padding: '1rem', color: 'var(--flux-text-muted)', fontSize: '0.875rem' }}>No conversations yet. Message a freelancer from Find Freelancers.</div>
-                        ) : (
-                            conversations.map((conv) => {
-                                const other = conv.otherUser || conv.participants?.find((p) => String(p._id) !== String(user?.id));
-                                const active = selectedConv?._id === conv._id;
-                                return (
-                                    <button
-                                        type="button"
-                                        key={conv._id}
-                                        onClick={() => selectConversation(conv)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '1rem 1.25rem',
-                                            border: 'none',
-                                            borderBottom: '1px solid #e2e8f0',
-                                            background: active ? 'var(--flux-main-bg)' : 'transparent',
-                                            cursor: 'pointer',
-                                            textAlign: 'left',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.75rem',
-                                        }}
-                                    >
-                                        <div className="navbar-flux-avatar" style={{ width: '2.5rem', height: '2.5rem', background: 'var(--flux-main-bg)', flexShrink: 0 }}>
-                                            <User size={18} color="var(--flux-text-muted)" />
-                                        </div>
-                                        <div style={{ minWidth: 0, flex: 1 }}>
-                                            <div style={{ fontWeight: 600, color: 'var(--flux-text)', fontSize: '0.9375rem' }}>{other?.name || 'Unknown'}</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--flux-text-muted)' }}>{other?.role === 'freelancer' ? 'Freelancer' : 'Client'}</div>
-                                        </div>
-                                    </button>
-                                );
-                            })
-                        )}
-                    </div>
+        <div className="ind-messages-layout">
+            {/* Sidebar */}
+            <div className="ind-conv-sidebar">
+                <div className="ind-conv-sidebar-header">
+                    <MessageCircle size={16} color="#888" /> MSG_CENTER
                 </div>
+                <div className="ind-conv-list">
+                    {loadingConv ? (
+                        <div style={{ padding: '1rem', fontSize: '0.7rem', color: '#555' }}>LOADING...</div>
+                    ) : conversations.length === 0 ? (
+                        <div style={{ padding: '1rem', fontSize: '0.7rem', color: '#555', lineHeight: 1.6 }}>
+                            NO_CONVERSATIONS.<br />Find a freelancer to start.
+                        </div>
+                    ) : (
+                        conversations.map((conv) => {
+                            const other = conv.otherUser || conv.participants?.find((p) => String(p._id) !== String(user?.id));
+                            const active = selectedConv?._id === conv._id;
+                            return (
+                                <button
+                                    type="button"
+                                    key={conv._id}
+                                    onClick={() => selectConversation(conv)}
+                                    className={`ind-conv-item ${active ? 'active' : ''}`}
+                                >
+                                    <div className="ind-conv-avatar">
+                                        <User size={16} />
+                                    </div>
+                                    <div>
+                                        <div className="ind-conv-name">{other?.name || 'UNKNOWN'}</div>
+                                        <div className="ind-conv-role">{other?.role === 'freelancer' ? 'FREELANCER' : 'CLIENT'}</div>
+                                    </div>
+                                </button>
+                            );
+                        })
+                    )}
+                </div>
+            </div>
 
             {/* Thread */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--flux-main-bg)', minWidth: 0, overflow: 'hidden' }}>
+            <div className="ind-thread">
                 {!selectedConv ? (
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--flux-text-muted)', fontSize: '1rem' }}>
-                        Select a conversation or message a freelancer from Find Freelancers
+                    <div className="ind-empty-state">
+                        <MessageCircle size={48} className="ind-empty-icon" color="#888" />
+                        <div className="ind-empty-title">SELECT_CONVERSATION</div>
+                        <p className="ind-empty-sub">Choose a conversation or message a freelancer from find_operators.</p>
                     </div>
                 ) : (
                     <>
-                        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', background: 'var(--flux-card-bg)', display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-                            <div className="navbar-flux-avatar" style={{ width: '2.5rem', height: '2.5rem', background: 'var(--flux-main-bg)' }}>
-                                <User size={18} color="var(--flux-text-muted)" />
+                        <div className="ind-thread-header">
+                            <div className="ind-conv-avatar">
+                                <User size={16} />
                             </div>
                             <div>
-                                <div style={{ fontWeight: 600, color: 'var(--flux-text)' }}>{otherUser?.name || 'Unknown'}</div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--flux-text-muted)' }}>{otherUser?.role === 'freelancer' ? 'Freelancer' : 'Client'}</div>
+                                <div className="ind-thread-name">{otherUser?.name || 'UNKNOWN_OPERATOR'}</div>
+                                <div className="ind-thread-role">{otherUser?.role === 'freelancer' ? 'FREELANCER' : 'CLIENT'}</div>
                             </div>
                         </div>
-                        <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', minHeight: 0 }}>
-                                {loadingMessages ? (
-                                    <div style={{ color: 'var(--flux-text-muted)', fontSize: '0.875rem' }}>Loading messages…</div>
-                                ) : messages.length === 0 ? (
-                                    <div style={{ color: 'var(--flux-text-muted)', fontSize: '0.875rem' }}>No messages yet. Say hi!</div>
-                                ) : (
-                                    messages.map((msg) => {
-                                        const me = isMe(msg.senderId);
-                                        return (
-                                            <div
-                                                key={msg._id}
-                                                style={{
-                                                    alignSelf: me ? 'flex-end' : 'flex-start',
-                                                    maxWidth: '80%',
-                                                    padding: '0.5rem 0.75rem',
-                                                    borderRadius: 'var(--flux-radius-sm)',
-                                                    background: me ? 'var(--primary)' : 'var(--flux-card-bg)',
-                                                    color: me ? '#fff' : 'var(--flux-text)',
-                                                    border: me ? 'none' : '1px solid #e2e8f0',
-                                                }}
-                                            >
-                                                <div style={{ fontSize: '0.7rem', opacity: 0.9, marginBottom: '0.25rem' }}>
-                                                    {msg.senderId?.name} · {msg.senderId?.role === 'client' ? 'Client' : 'Freelancer'}
-                                                </div>
-                                                <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{msg.content}</div>
-                                                <div style={{ fontSize: '0.7rem', opacity: 0.8, marginTop: '0.25rem' }}>
-                                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </div>
+
+                        <div className="ind-thread-messages">
+                            {loadingMessages ? (
+                                <div style={{ fontSize: '0.7rem', color: '#888' }}>LOADING_MESSAGES...</div>
+                            ) : messages.length === 0 ? (
+                                <div style={{ fontSize: '0.7rem', color: '#888' }}>NO_MESSAGES. Say hi!</div>
+                            ) : (
+                                messages.map((msg) => {
+                                    const me = isMe(msg.senderId);
+                                    return (
+                                        <div key={msg._id} className={`ind-msg ${me ? 'ind-msg-me' : 'ind-msg-other'}`}>
+                                            <div className="ind-msg-meta">
+                                                {msg.senderId?.name} · {msg.senderId?.role === 'client' ? 'CLIENT' : 'FREELANCER'}
                                             </div>
-                                        );
-                                    })
-                                )}
-                                <div ref={listEndRef} />
-                            </div>
-                            <form onSubmit={handleSend} style={{ padding: '1rem', borderTop: '1px solid #e2e8f0', background: 'var(--flux-card-bg)', display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-                                <input
-                                    type="text"
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    placeholder="Type a message…"
-                                    maxLength={2000}
-                                    style={{
-                                        flex: 1,
-                                        padding: '0.6rem 1rem',
-                                        borderRadius: 'var(--flux-radius-sm)',
-                                        border: '1px solid #e2e8f0',
-                                        fontSize: '1rem',
-                                        background: 'var(--flux-main-bg)',
-                                        color: 'var(--flux-text)',
-                                    }}
-                                />
-                                <button type="submit" className="btn btn-primary" disabled={!input.trim() || sending} style={{ padding: '0.6rem 1rem' }}>
-                                    <Send size={20} />
-                                </button>
-                            </form>
-                        </>
-                    )}
+                                            <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{msg.content}</div>
+                                            <div className="ind-msg-time">
+                                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                            <div ref={listEndRef} />
+                        </div>
+
+                        <form onSubmit={handleSend} className="ind-thread-input">
+                            <input
+                                type="text"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                placeholder="Type a message..."
+                                maxLength={2000}
+                            />
+                            <button
+                                type="submit"
+                                className="ind-thread-send"
+                                disabled={!input.trim() || sending}
+                            >
+                                <Send size={18} />
+                            </button>
+                        </form>
+                    </>
+                )}
             </div>
         </div>
     );

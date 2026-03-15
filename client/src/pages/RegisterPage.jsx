@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { UserPlus, Mail, Lock, User, Briefcase, UserCheck, ShieldAlert } from 'lucide-react';
+import { Shield, User, Mail, Lock, Briefcase, UserCheck, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const RegisterPage = () => {
@@ -10,9 +10,8 @@ const RegisterPage = () => {
         name: '',
         email: '',
         password: '',
-        role: 'client' // default
+        role: 'client'
     });
-
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { register, error } = useAuth();
     const navigate = useNavigate();
@@ -28,21 +27,17 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const { name, email, password, role } = formData;
-
         if (!name || !email || !password) {
             toast.error('Please fill in all fields');
             return;
         }
-
         if (password.length < 6) {
             toast.error('Password must be at least 6 characters');
             return;
         }
-
         setIsSubmitting(true);
         const success = await register({ name, email, password, role });
         setIsSubmitting(false);
-
         if (success) {
             toast.success('Account created successfully!');
             navigate('/');
@@ -50,166 +45,135 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="container flex-center" style={{ minHeight: 'calc(100vh - 4rem)' }}>
+        <div className="ind-auth-page">
+            <div className="ind-noise-overlay" />
+
+            <div className="ind-auth-topbar">
+                <Link to="/" className="ind-auth-brand">
+                    <Shield size={18} /> ACCREDIFY
+                </Link>
+                <span className="ind-auth-sys-label">SYS_AUTH // REGISTER_v1.0</span>
+            </div>
+
             <motion.div
-                className="glass-card"
-                style={{ width: '100%', maxWidth: '450px', padding: '2rem', margin: '2rem 0' }}
-                initial={{ opacity: 0, y: 20 }}
+                className="ind-auth-panel ind-auth-panel-wide"
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Create Account</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Join Accredify's trusted network</p>
+                <div className="ind-panel-header">
+                    <div className="ind-panel-index">00</div>
+                    <h1 className="ind-panel-title">REGISTER_OPERATOR</h1>
+                    <p className="ind-panel-sub">Initialize a new identity on the trust network.</p>
                 </div>
 
                 {error && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        className="flex-center"
-                        style={{
-                            background: 'var(--danger-bg)',
-                            color: 'var(--danger)',
-                            padding: '0.75rem',
-                            borderRadius: 'var(--radius-md)',
-                            marginBottom: '1.5rem',
-                            fontSize: '0.875rem',
-                            gap: '0.5rem',
-                            border: '1px solid rgba(239, 68, 68, 0.2)'
-                        }}
-                    >
-                        <ShieldAlert size={16} />
-                        {error}
-                    </motion.div>
+                    <div className="ind-error-block">
+                        <span className="ind-error-tag">ERR</span> {error}
+                    </div>
                 )}
 
-                <form onSubmit={handleSubmit}>
-                    {/* Role selection - Custom UI instead of native select */}
-                    <div className="input-group">
-                        <label className="input-label" style={{ marginBottom: '0.5rem' }}>I am a...</label>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            <div
+                <form onSubmit={handleSubmit} className="ind-form">
+                    {/* Role selector */}
+                    <div className="ind-field">
+                        <label className="ind-label">
+                            <span className="ind-label-index">01</span> OPERATOR_TYPE
+                        </label>
+                        <div className="ind-role-grid">
+                            <button
+                                type="button"
+                                className={`ind-role-card ${formData.role === 'client' ? 'ind-role-active-orange' : ''}`}
                                 onClick={() => handleRoleSelect('client')}
-                                style={{
-                                    padding: '1rem',
-                                    borderRadius: 'var(--radius-md)',
-                                    border: `2px solid ${formData.role === 'client' ? 'var(--primary)' : 'var(--border)'}`,
-                                    background: formData.role === 'client' ? 'var(--primary-light)' : 'var(--bg-dark)',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                    transition: 'all 0.2s'
-                                }}
                             >
-                                <Briefcase size={24} color={formData.role === 'client' ? 'var(--primary)' : 'var(--text-muted)'} />
-                                <span style={{ fontWeight: formData.role === 'client' ? 600 : 400 }}>Client</span>
-                            </div>
-
-                            <div
+                                <Briefcase size={24} />
+                                <span className="ind-role-label">CLIENT</span>
+                                <span className="ind-role-desc">Hire talent &amp; lock scope</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`ind-role-card ${formData.role === 'freelancer' ? 'ind-role-active-green' : ''}`}
                                 onClick={() => handleRoleSelect('freelancer')}
-                                style={{
-                                    padding: '1rem',
-                                    borderRadius: 'var(--radius-md)',
-                                    border: `2px solid ${formData.role === 'freelancer' ? 'var(--success)' : 'var(--border)'}`,
-                                    background: formData.role === 'freelancer' ? 'var(--success-bg)' : 'var(--bg-dark)',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                    transition: 'all 0.2s'
-                                }}
                             >
-                                <UserCheck size={24} color={formData.role === 'freelancer' ? 'var(--success)' : 'var(--text-muted)'} />
-                                <span style={{ fontWeight: formData.role === 'freelancer' ? 600 : 400 }}>Freelancer</span>
-                            </div>
+                                <UserCheck size={24} />
+                                <span className="ind-role-label">FREELANCER</span>
+                                <span className="ind-role-desc">Deliver &amp; build trust score</span>
+                            </button>
                         </div>
                     </div>
 
-                    <div className="input-group">
-                        <label className="input-label" htmlFor="name">Full Name</label>
-                        <div style={{ position: 'relative' }}>
-                            <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-                                <User size={18} />
-                            </div>
+                    <div className="ind-field">
+                        <label className="ind-label" htmlFor="name">
+                            <span className="ind-label-index">02</span> DISPLAY_NAME
+                        </label>
+                        <div className="ind-input-wrap">
+                            <User size={16} className="ind-input-icon" />
                             <input
                                 id="name"
                                 type="text"
-                                className="input-field"
-                                placeholder="John Doe"
+                                className="ind-input"
+                                placeholder="Your full name"
                                 value={formData.name}
                                 onChange={handleChange}
-                                style={{ paddingLeft: '2.75rem' }}
                             />
                         </div>
                     </div>
 
-                    <div className="input-group">
-                        <label className="input-label" htmlFor="email">Email address</label>
-                        <div style={{ position: 'relative' }}>
-                            <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-                                <Mail size={18} />
-                            </div>
+                    <div className="ind-field">
+                        <label className="ind-label" htmlFor="email">
+                            <span className="ind-label-index">03</span> EMAIL_ADDRESS
+                        </label>
+                        <div className="ind-input-wrap">
+                            <Mail size={16} className="ind-input-icon" />
                             <input
                                 id="email"
                                 type="email"
-                                className="input-field"
-                                placeholder="you@example.com"
+                                className="ind-input"
+                                placeholder="operator@domain.com"
                                 value={formData.email}
                                 onChange={handleChange}
-                                style={{ paddingLeft: '2.75rem' }}
                             />
                         </div>
                     </div>
 
-                    <div className="input-group" style={{ marginBottom: '1.5rem' }}>
-                        <label className="input-label" htmlFor="password">Password</label>
-                        <div style={{ position: 'relative' }}>
-                            <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-                                <Lock size={18} />
-                            </div>
+                    <div className="ind-field">
+                        <label className="ind-label" htmlFor="password">
+                            <span className="ind-label-index">04</span> ACCESS_KEY
+                        </label>
+                        <div className="ind-input-wrap">
+                            <Lock size={16} className="ind-input-icon" />
                             <input
                                 id="password"
                                 type="password"
-                                className="input-field"
+                                className="ind-input"
                                 placeholder="Min. 6 characters"
                                 value={formData.password}
                                 onChange={handleChange}
-                                style={{ paddingLeft: '2.75rem' }}
                             />
                         </div>
                     </div>
 
                     <button
                         type="submit"
-                        className="btn btn-primary"
-                        style={{ width: '100%' }}
+                        className="ind-btn-primary"
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? (
-                            <span className="flex-center" style={{ gap: '0.5rem' }}>
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                    style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%' }}
-                                />
-                                Creating Account...
-                            </span>
+                            <span className="ind-spinner" />
                         ) : (
-                            <span className="flex-center" style={{ gap: '0.5rem' }}>
-                                <UserPlus size={18} /> Create Account
-                            </span>
+                            <>INITIALIZE OPERATOR <ArrowRight size={16} /></>
                         )}
                     </button>
                 </form>
 
-                <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                    Already have an account? <Link to="/login" style={{ fontWeight: 500 }}>Sign in</Link>
+                <div className="ind-panel-footer">
+                    ALREADY REGISTERED? <Link to="/login">AUTHENTICATE →</Link>
                 </div>
             </motion.div>
+
+            <div className="ind-auth-statusbar">
+                <span>BEHAVIORAL TRUST PROTOCOL</span>
+                <span className="ind-status-online">● ONLINE</span>
+            </div>
         </div>
     );
 };

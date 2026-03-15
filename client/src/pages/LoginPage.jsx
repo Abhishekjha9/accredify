@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, Mail, Lock, ShieldAlert } from 'lucide-react';
+import { Shield, Mail, Lock, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const LoginPage = () => {
@@ -18,11 +18,9 @@ const LoginPage = () => {
             toast.error('Please fill in all fields');
             return;
         }
-
         setIsSubmitting(true);
         const success = await login(email, password);
         setIsSubmitting(false);
-
         if (success) {
             toast.success('Successfully logged in!');
             navigate('/');
@@ -30,104 +28,95 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="container flex-center" style={{ minHeight: 'calc(100vh - 4rem)' }}>
+        <div className="ind-auth-page">
+            {/* Noise overlay */}
+            <div className="ind-noise-overlay" />
+
+            {/* Top bar */}
+            <div className="ind-auth-topbar">
+                <Link to="/" className="ind-auth-brand">
+                    <Shield size={18} /> ACCREDIFY
+                </Link>
+                <span className="ind-auth-sys-label">SYS_AUTH // LOGIN_v1.0</span>
+            </div>
+
             <motion.div
-                className="glass-card"
-                style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}
-                initial={{ opacity: 0, y: 20 }}
+                className="ind-auth-panel"
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Welcome back</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Sign in to continue to Accredify</p>
+                {/* Panel header */}
+                <div className="ind-panel-header">
+                    <div className="ind-panel-index">01</div>
+                    <h1 className="ind-panel-title">AUTHENTICATE</h1>
+                    <p className="ind-panel-sub">Enter credentials to access the trust network.</p>
                 </div>
 
                 {error && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        className="flex-center"
-                        style={{
-                            background: 'var(--danger-bg)',
-                            color: 'var(--danger)',
-                            padding: '0.75rem',
-                            borderRadius: 'var(--radius-md)',
-                            marginBottom: '1.5rem',
-                            fontSize: '0.875rem',
-                            gap: '0.5rem',
-                            border: '1px solid rgba(239, 68, 68, 0.2)'
-                        }}
-                    >
-                        <ShieldAlert size={16} />
-                        {error}
-                    </motion.div>
+                    <div className="ind-error-block">
+                        <span className="ind-error-tag">ERR</span> {error}
+                    </div>
                 )}
 
-                <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <label className="input-label" htmlFor="email">Email address</label>
-                        <div style={{ position: 'relative' }}>
-                            <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-                                <Mail size={18} />
-                            </div>
+                <form onSubmit={handleSubmit} className="ind-form">
+                    <div className="ind-field">
+                        <label className="ind-label" htmlFor="email">
+                            <span className="ind-label-index">01</span> EMAIL_ADDRESS
+                        </label>
+                        <div className="ind-input-wrap">
+                            <Mail size={16} className="ind-input-icon" />
                             <input
                                 id="email"
                                 type="email"
-                                className="input-field"
-                                placeholder="you@example.com"
+                                className="ind-input"
+                                placeholder="operator@domain.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                style={{ paddingLeft: '2.75rem' }}
                             />
                         </div>
                     </div>
 
-                    <div className="input-group">
-                        <label className="input-label" htmlFor="password">Password</label>
-                        <div style={{ position: 'relative' }}>
-                            <div style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-                                <Lock size={18} />
-                            </div>
+                    <div className="ind-field">
+                        <label className="ind-label" htmlFor="password">
+                            <span className="ind-label-index">02</span> ACCESS_KEY
+                        </label>
+                        <div className="ind-input-wrap">
+                            <Lock size={16} className="ind-input-icon" />
                             <input
                                 id="password"
                                 type="password"
-                                className="input-field"
+                                className="ind-input"
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                style={{ paddingLeft: '2.75rem' }}
                             />
                         </div>
                     </div>
 
                     <button
                         type="submit"
-                        className="btn btn-primary"
-                        style={{ width: '100%', marginTop: '1rem' }}
+                        className="ind-btn-primary"
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? (
-                            <span className="flex-center" style={{ gap: '0.5rem' }}>
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                    style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%' }}
-                                />
-                                Signing in...
-                            </span>
+                            <span className="ind-spinner" />
                         ) : (
-                            <span className="flex-center" style={{ gap: '0.5rem' }}>
-                                <LogIn size={18} /> Sign in
-                            </span>
+                            <>INITIALIZE SESSION <ArrowRight size={16} /></>
                         )}
                     </button>
                 </form>
 
-                <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                    Don't have an account? <Link to="/register" style={{ fontWeight: 500 }}>Sign up</Link>
+                <div className="ind-panel-footer">
+                    NO ACCOUNT? <Link to="/register">REGISTER_OPERATOR →</Link>
                 </div>
             </motion.div>
+
+            {/* Status bar */}
+            <div className="ind-auth-statusbar">
+                <span>BEHAVIORAL TRUST PROTOCOL</span>
+                <span className="ind-status-online">● ONLINE</span>
+            </div>
         </div>
     );
 };

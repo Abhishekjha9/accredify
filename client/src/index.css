@@ -1,52 +1,77 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 :root {
-  /* Dark theme colors */
-  --bg-dark: #0f172a; /* Slate 900 */
-  --bg-card: #1e293b; /* Slate 800 */
-  --bg-card-hover: #334155; /* Slate 700 */
-  
-  --text-main: #f8fafc; /* Slate 50 */
-  --text-muted: #94a3b8; /* Slate 400 */
-  
-  --primary: #6366f1; /* Indigo 500 */
-  --primary-hover: #4f46e5; /* Indigo 600 */
-  --primary-light: rgba(99, 102, 241, 0.1);
-  
-  --success: #10b981; /* Emerald 500 */
-  --success-bg: rgba(16, 185, 129, 0.1);
-  
-  --danger: #ef4444; /* Red 500 */
-  --danger-bg: rgba(239, 68, 68, 0.1);
-  
-  --warning: #f59e0b; /* Amber 500 */
-  --warning-bg: rgba(245, 158, 11, 0.1);
-  
-  --border: #334155; /* Slate 700 */
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  
-  --radius-md: 0.5rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
-  
-  /* Flux-style dashboard (light content, accent colors) */
-  --flux-sidebar: #1a1d24;
-  --flux-main-bg: #f1f5f9;
-  --flux-card-bg: #ffffff;
-  --flux-text: #1e293b;
-  --flux-text-muted: #64748b;
-  --flux-accent: #84cc16;
-  --flux-accent-soft: rgba(132, 204, 22, 0.12);
-  --flux-purple: #a78bfa;
-  --flux-purple-soft: rgba(167, 139, 250, 0.12);
-  --flux-radius: 1rem;
-  --flux-radius-sm: 0.75rem;
+  /* ====== INDUSTRIAL DESIGN SYSTEM ====== */
+  /* Backgrounds */
+  --ind-bg: #E2E2E2;
+  --ind-bg-dark: #111111;
+  --ind-card-bg: #F5F5F5;
+  --ind-card-white: #FFFFFF;
+
+  /* Text */
+  --ind-text: #111111;
+  --ind-text-muted: #555555;
+  --ind-text-faint: #888888;
+
+  /* Accents */
+  --ind-orange: #FF7A00;
+  --ind-orange-hover: #E66D00;
+  --ind-green: #00FF66;
+  --ind-white: #FFFFFF;
+
+  /* Borders */
+  --ind-border: #CCCCCC;
+  --ind-border-dark: #111111;
+
+  /* Shadows (offset, hard industrial style) */
+  --ind-shadow: 4px 4px 0px #111111;
+  --ind-shadow-orange: 4px 4px 0px #FF7A00;
+
+  /* Typography */
+  --ind-font: 'Space Mono', monospace;
+
+  /* Radii (sharp) */
+  --ind-radius: 2px;
+  --ind-radius-md: 4px;
+
+  /* Legacy vars mapped to industrial tokens for compatibility */
+  --bg-dark: #111111;
+  --bg-card: #1a1a1a;
+  --bg-card-hover: #2a2a2a;
+  --text-main: #E2E2E2;
+  --text-muted: #888888;
+  --primary: #FF7A00;
+  --primary-hover: #E66D00;
+  --primary-light: rgba(255, 122, 0, 0.12);
+  --success: #00FF66;
+  --success-bg: rgba(0, 255, 102, 0.1);
+  --danger: #FF4444;
+  --danger-bg: rgba(255, 68, 68, 0.1);
+  --warning: #FFB800;
+  --warning-bg: rgba(255, 184, 0, 0.1);
+  --border: #333333;
+  --glass-border: rgba(255,255,255,0.1);
+  --glass-bg: rgba(17,17,17,0.7);
+  --radius-md: 2px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --shadow-sm: 2px 2px 0 #111;
+  --shadow-md: 4px 4px 0 #111;
+  --shadow-lg: 6px 6px 0 #111;
+  --shadow-glow: 0 0 20px rgba(255, 122, 0, 0.3);
+
+  /* Industrial dashboard tokens */
+  --flux-sidebar: #111111;
+  --flux-main-bg: #E2E2E2;
+  --flux-card-bg: #F5F5F5;
+  --flux-text: #111111;
+  --flux-text-muted: #555555;
+  --flux-accent: #FF7A00;
+  --flux-accent-soft: rgba(255, 122, 0, 0.1);
+  --flux-purple: #FF7A00;
+  --flux-purple-soft: rgba(255, 122, 0, 0.1);
+  --flux-radius: 2px;
+  --flux-radius-sm: 2px;
 }
 
 * {
@@ -56,12 +81,13 @@
 }
 
 body {
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--flux-main-bg);
-  color: var(--flux-text);
+  font-family: 'Space Mono', monospace;
+  background-color: var(--ind-bg);
+  color: var(--ind-text);
   line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  text-transform: uppercase;
 }
 
 #root {
@@ -72,20 +98,21 @@ body {
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.2;
   margin-bottom: 0.5rem;
-  color: var(--text-main);
+  color: var(--ind-text);
+  font-family: var(--ind-font);
 }
 
 a {
-  color: var(--primary);
+  color: var(--ind-orange);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 a:hover {
-  color: var(--text-main);
+  color: var(--ind-orange-hover);
 }
 
 /* Glassmorphism Cards */

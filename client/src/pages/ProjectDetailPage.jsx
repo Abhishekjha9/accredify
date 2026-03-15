@@ -256,7 +256,7 @@ const ProjectDetailPage = () => {
         }
     };
 
-    if (loading) return <div className="project-detail-page"><div className="container" style={{ paddingTop: '4rem', textAlign: 'center', color: 'var(--flux-text-muted)' }}>Loading project...</div></div>;
+    if (loading) return <div className="ind-page"><div className="ind-page-inner ind-empty-state"><div style={{ fontSize: '0.75rem', color: '#888' }}>LOADING_PROJECT...</div></div></div>;
     if (!project) return null;
 
     const revisionPercentage = (project.revisionsUsed / project.revisionLimit) * 100;
@@ -265,14 +265,14 @@ const ProjectDetailPage = () => {
     if (revisionPercentage >= 100) progressColor = 'var(--danger)';
 
     return (
-        <div className="project-detail-page">
-            <div className="container project-detail-container" style={{ padding: '1.75rem 1.5rem 4rem' }}>
+        <div className="ind-page">
+            <div className="ind-page-inner">
                 <button
                     onClick={() => navigate('/')}
-                    className="btn btn-secondary"
-                    style={{ gap: '0.5rem', marginBottom: '1.5rem', padding: '0.5rem 1rem', fontSize: '0.9375rem' }}
+                    className="ind-btn ind-btn-outline"
+                    style={{ gap: '0.5rem', marginBottom: '1.5rem' }}
                 >
-                    <ArrowLeft size={16} /> Back to Dashboard
+                    <ArrowLeft size={14} /> BACK_TO_DASHBOARD
                 </button>
 
                 {/* Header */}
@@ -588,12 +588,6 @@ const ProjectDetailPage = () => {
                     </div>
                 </div>
             </div>
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        @media (max-width: 768px) {
-          .responsive-grid { grid-template-columns: 1fr !important; }
-        }
-      `}} />
             </div>
         </div>
     );

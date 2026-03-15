@@ -32,71 +32,74 @@ const FreelancerProfilePage = () => {
         navigate(`/messages?with=${id}`);
     };
 
-    if (loading) return <div className="dashboard-layout"><div className="container" style={{ padding: '4rem 1.5rem', textAlign: 'center', color: 'var(--flux-text-muted)' }}>Loading profile…</div></div>;
+    if (loading) {
+        return (
+            <div className="ind-page">
+                <div className="ind-page-inner ind-empty-state">
+                    <div style={{ fontSize: '0.75rem', color: '#888' }}>LOADING_OPERATOR_PROFILE...</div>
+                </div>
+            </div>
+        );
+    }
+
     if (!profile) return null;
 
     const shortId = profile._id ? String(profile._id).slice(-6) : '';
 
     return (
-        <div className="dashboard-layout">
-            <div className="container" style={{ padding: '2rem 1.5rem 4rem', maxWidth: 720 }}>
+        <div className="ind-page">
+            <div className="ind-page-inner" style={{ maxWidth: 720 }}>
+                {/* Back button */}
                 <button
                     onClick={() => navigate('/freelancers')}
-                    className="btn btn-secondary"
-                    style={{ gap: '0.5rem', marginBottom: '1.5rem', padding: '0.5rem 1rem', fontSize: '0.9375rem' }}
+                    className="ind-btn ind-btn-outline"
+                    style={{ marginBottom: '1.5rem', gap: '0.5rem' }}
                 >
-                    <ArrowLeft size={16} /> Back to Freelancers
+                    <ArrowLeft size={14} /> BACK_TO_DIRECTORY
                 </button>
 
-                <div className="flux-card" style={{ padding: '1.5rem 1.75rem', marginBottom: '1.5rem' }}>
-                    <div className="flex-between" style={{ flexWrap: 'wrap', gap: '1rem', alignItems: 'flex-start' }}>
-                        <div className="flex-center" style={{ gap: '1rem' }}>
-                            <div className="navbar-flux-avatar" style={{ width: '4rem', height: '4rem', background: 'var(--flux-main-bg)' }}>
-                                <User size={32} color="var(--flux-text-muted)" />
-                            </div>
-                            <div>
-                                <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--flux-text)', marginBottom: '0.25rem' }}>{profile.name}</h1>
-                                <div style={{ fontSize: '0.9375rem', color: 'var(--flux-text-muted)' }}>Freelancer · ID: {shortId}</div>
+                {/* Profile card */}
+                <div className="ind-page-header">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1 }}>
+                        <div style={{ width: 72, height: 72, background: '#111', border: '2px solid #333', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <User size={32} color="#888" />
+                        </div>
+                        <div>
+                            <div className="ind-page-sys-label">SYS_OPERATOR // FREELANCER_PROFILE</div>
+                            <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#111', marginBottom: '0.25rem' }}>{profile.name}</h1>
+                            <div style={{ fontSize: '0.65rem', color: '#888', letterSpacing: '0.1em' }}>
+                                FREELANCER · ID_{shortId}
                             </div>
                         </div>
-                        {user?.role === 'client' && (
-                            <button
-                                type="button"
-                                className="btn btn-primary"
-                                style={{ padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                                onClick={handleMessage}
-                            >
-                                <MessageCircle size={20} /> Message
-                            </button>
-                        )}
                     </div>
+                    {user?.role === 'client' && (
+                        <button
+                            type="button"
+                            className="ind-btn ind-btn-black"
+                            onClick={handleMessage}
+                        >
+                            <MessageCircle size={16} /> MESSAGE_OPERATOR
+                        </button>
+                    )}
                 </div>
 
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--flux-text)', marginBottom: '0.85rem' }}>Scores</h2>
-                <div className="grid-cards" style={{ marginBottom: '1.5rem' }}>
-                    <motion.div className="flux-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                        <div className="flex-between" style={{ marginBottom: '0.5rem' }}>
-                            <span className="flux-card-title">Trust Score</span>
-                            <Shield size={20} color="var(--flux-accent)" />
-                        </div>
-                        <div className="flux-metric">{profile.trustScore ?? '—'}</div>
-                        <div className="flux-metric-sub">Good standing</div>
+                {/* Metrics */}
+                <div style={{ fontSize: '0.65rem', color: '#888', letterSpacing: '0.15em', marginBottom: '0.75rem' }}>// TRUST_METRICS</div>
+                <div className="ind-metric-cards">
+                    <motion.div className="ind-metric-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                        <div className="ind-metric-label"><Shield size={10} style={{ display: 'inline', marginRight: 4 }} />TRUST_SCORE</div>
+                        <div className="ind-metric-value ind-metric-value-orange">{profile.trustScore ?? '—'}</div>
+                        <div className="ind-metric-sub">BEHAVIORAL_CREDIBILITY</div>
                     </motion.div>
-                    <motion.div className="flux-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-                        <div className="flex-between" style={{ marginBottom: '0.5rem' }}>
-                            <span className="flux-card-title">Scope Discipline</span>
-                            <TrendingUp size={20} color="var(--flux-purple)" />
-                        </div>
-                        <div className="flux-metric">{profile.scopeDiscipline ?? '—'}%</div>
-                        <div className="flux-metric-sub">Adherence to scope</div>
+                    <motion.div className="ind-metric-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                        <div className="ind-metric-label"><TrendingUp size={10} style={{ display: 'inline', marginRight: 4 }} />SCOPE_DISCIPLINE</div>
+                        <div className="ind-metric-value ind-metric-value-green">{profile.scopeDiscipline ?? '—'}%</div>
+                        <div className="ind-metric-sub">SCOPE_ADHERENCE</div>
                     </motion.div>
-                    <motion.div className="flux-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                        <div className="flex-between" style={{ marginBottom: '0.5rem' }}>
-                            <span className="flux-card-title">Scope Creep Index</span>
-                            <AlertTriangle size={20} color="var(--flux-text-muted)" />
-                        </div>
-                        <div className="flux-metric">{profile.scopeCreepIndex ?? '—'}</div>
-                        <div className="flux-metric-sub">Historical scope shifts</div>
+                    <motion.div className="ind-metric-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                        <div className="ind-metric-label"><AlertTriangle size={10} style={{ display: 'inline', marginRight: 4 }} />SCOPE_CREEP_INDEX</div>
+                        <div className="ind-metric-value">{profile.scopeCreepIndex ?? '—'}</div>
+                        <div className="ind-metric-sub">HISTORICAL_SHIFTS</div>
                     </motion.div>
                 </div>
             </div>

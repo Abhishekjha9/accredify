@@ -11,6 +11,9 @@ const {
     addDeliverable,
     acceptDeliverable,
     requestDeliverableRevision,
+    completeProject,
+    getProjectMessages,
+    sendProjectMessage,
 } = require('../controllers/projectController');
 const auth = require('../middleware/auth');
 const roleGuard = require('../middleware/roleGuard');
@@ -36,6 +39,7 @@ router.post(
         body('revisionLimit')
             .isInt({ min: 0 })
             .withMessage('Revision limit must be a non-negative integer'),
+        body('deadline').optional().isISO8601().withMessage('Deadline must be a valid date'),
     ],
     validate,
     createProject
@@ -43,6 +47,17 @@ router.post(
 
 // @route   GET /api/projects
 router.get('/', getUserProjects);
+
+// @route   GET /api/projects/:id/messages  (must be before /:id)
+router.get('/:id/messages', getProjectMessages);
+
+// @route   POST /api/projects/:id/messages
+router.post(
+    '/:id/messages',
+    [body('content').trim().notEmpty().withMessage('Message content is required')],
+    validate,
+    sendProjectMessage
+);
 
 // @route   GET /api/projects/:id
 router.get('/:id', getProject);
@@ -87,7 +102,17 @@ router.patch(
 
 // @route   PATCH /api/projects/:id/approve
 // @access  Client only
-router.patch('/:id/approve', roleGuard('client'), approveProject);
+router.patch(
+    '/:id/approve',
+    roleGuard('client'),
+    [body('deadline').optional().isISO8601().withMessage('Deadline must be a valid date')],
+    validate,
+    approveProject
+);
+
+// @route   PATCH /api/projects/:id/complete
+// @access  Client only (marks project complete; updates trust score & scope metrics)
+router.patch('/:id/complete', roleGuard('client'), completeProject);
 
 // @route   POST /api/projects/:id/change-requests
 // @access  Client only (logs change; freelancer marks scope later)

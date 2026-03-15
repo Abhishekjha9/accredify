@@ -227,6 +227,7 @@ a:hover {
 
 .page-wrapper {
   padding: 2rem 0;
+  padding-top: calc(4rem + 2rem); /* navbar height + original top padding */
   flex: 1;
 }
 
@@ -286,17 +287,25 @@ a:hover {
 .dashboard-layout .badge-success { background: var(--flux-accent-soft); color: #65a30d; border: none; }
 .dashboard-layout .badge-neutral { background: #f1f5f9; color: var(--flux-text-muted); border: none; }
 
+.dashboard-layout .btn-secondary {
+  color: var(--flux-text);
+  border-color: #cbd5e1;
+  background-color: #fff;
+}
+
 .dashboard-layout .btn-secondary:hover:not(:disabled) {
   color: #f8fafc;
   background-color: #334155;
   border-color: #334155;
 }
 
-/* Flux-style navbar (dark header) */
+/* Flux-style navbar (dark header) - fixed so it never moves on scroll */
 .navbar-flux {
   background: var(--flux-sidebar);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 50;
 }
 
@@ -367,6 +376,29 @@ a:hover {
 
 .navbar-flux-icon-btn:hover {
   background: rgba(255, 255, 255, 0.06);
+}
+
+.navbar-flux-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar-flux-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--flux-radius-sm);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.navbar-flux-nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
 }
 
 .navbar-flux-profile-wrap {
@@ -503,6 +535,11 @@ a:hover {
   color: var(--flux-text);
   font-family: 'DM Sans', sans-serif;
   padding-bottom: 4rem;
+}
+
+/* When chat is open, content must not extend under the 320px chat bar */
+.project-detail-page .project-detail-container {
+  box-sizing: border-box;
 }
 
 .project-detail-page .project-detail-header {

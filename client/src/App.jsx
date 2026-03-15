@@ -12,6 +12,9 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import ProfilePage from './pages/ProfilePage';
+import FreelancersPage from './pages/FreelancersPage';
+import FreelancerProfilePage from './pages/FreelancerProfilePage';
+import MessagesPage from './pages/MessagesPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -63,6 +66,31 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/freelancers"
+              element={
+                <ProtectedRoute>
+                  <FreelancersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/freelancers/:id"
+              element={
+                <ProtectedRoute>
+                  <FreelancerProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/messages"
+              element={
+                <ProtectedRoute>
+                  <MessagesPage />
                 </ProtectedRoute>
               }
             />

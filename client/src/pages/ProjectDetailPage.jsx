@@ -4,7 +4,56 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { projectAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { ArrowLeft, CheckCircle, FileEdit, AlertCircle, Send, Check, Plus, Link as LinkIcon, Upload, ExternalLink, FileText, MessageSquare } from 'lucide-react';
+import { ArrowLeft, CheckCircle, FileEdit, AlertCircle, Send, Check, Plus, Link as LinkIcon, Upload, ExternalLink, FileText, MessageSquare, Award, Clock } from 'lucide-react';
+
+/** Returns 'before_deadline' | 'on_time' | 'after_deadline' | null */
+function getCompletionTiming(project) {
+    if (!project.deadline || !project.completedAt) return null;
+    const completed = new Date(project.completedAt);
+    const deadline = new Date(project.deadline);
+    const deadlineEnd = new Date(deadline);
+    deadlineEnd.setHours(23, 59, 59, 999);
+    if (completed < deadline) return 'before_deadline';
+    if (completed <= deadlineEnd) return 'on_time';
+    return 'after_deadline';
+}
+
+function CompletionSummary({ project }) {
+    const timing = getCompletionTiming(project);
+    const labels = {
+        before_deadline: { text: 'Completed before deadline', sub: 'Bonus applied to freelancer trust score', color: 'var(--success)' },
+        on_time: { text: 'Completed on time', sub: 'No deadline adjustment', color: 'var(--flux-text-muted)' },
+        after_deadline: { text: 'Completed after deadline', sub: 'Penalty applied to freelancer trust score', color: 'var(--warning)' },
+    };
+    const info = timing ? labels[timing] : null;
+    return (
+        <div className="section-card" style={{ marginTop: '1rem', background: 'var(--flux-main-bg)', border: '1px solid #e2e8f0' }}>
+            <h3 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <Award size={20} /> Completion summary
+            </h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Clock size={16} color="var(--flux-text-muted)" />
+                    Completed: {new Date(project.completedAt).toLocaleString()}
+                </span>
+                {project.deadline && (
+                    <span style={{ color: 'var(--flux-text-muted)' }}>
+                        Deadline was: {new Date(project.deadline).toLocaleDateString()}
+                    </span>
+                )}
+                {info && (
+                    <span style={{ color: info.color, fontWeight: 500 }}>{info.text}</span>
+                )}
+                {project.trustImpact != null && project.trustImpact !== 0 && (
+                    <span style={{ color: project.trustImpact > 0 ? 'var(--success)' : 'var(--danger)', fontWeight: 600 }}>
+                        Trust impact: {project.trustImpact > 0 ? '+' : ''}{project.trustImpact}
+                    </span>
+                )}
+            </div>
+            {info?.sub && <div style={{ fontSize: '0.875rem', color: 'var(--flux-text-muted)', marginTop: '0.5rem' }}>{info.sub}</div>}
+        </div>
+    );
+}
 
 const ProjectDetailPage = () => {
     const { id } = useParams();
@@ -35,6 +84,11 @@ const ProjectDetailPage = () => {
     const [revisionDeliverableId, setRevisionDeliverableId] = useState(null);
     const [revisionFeedback, setRevisionFeedback] = useState('');
 
+    // Client: approve with optional deadline; complete project
+    const [showApproveForm, setShowApproveForm] = useState(false);
+    const [approveDeadline, setApproveDeadline] = useState('');
+    const [completing, setCompleting] = useState(false);
+
     useEffect(() => {
         const fetchProject = async () => {
             try {
@@ -50,14 +104,31 @@ const ProjectDetailPage = () => {
         fetchProject();
     }, [id, navigate]);
 
-    const handleApprove = async () => {
-        if (!window.confirm('Are you sure you want to approve and activate this project?')) return;
+    const handleApprove = async (e) => {
+        if (e && e.preventDefault) e.preventDefault();
         try {
-            const res = await projectAPI.approveProject(id);
+            const payload = approveDeadline ? { deadline: new Date(approveDeadline).toISOString() } : {};
+            const res = await projectAPI.approveProject(id, payload);
             setProject(res.data);
+            setShowApproveForm(false);
+            setApproveDeadline('');
             toast.success('Project approved and active!');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Approval failed');
+        }
+    };
+
+    const handleComplete = async () => {
+        if (!window.confirm('Mark this project as complete? This will update the freelancer\'s trust score and scope metrics.')) return;
+        setCompleting(true);
+        try {
+            const res = await projectAPI.completeProject(id);
+            setProject(res.data);
+            toast.success('Project completed! Trust score updated.');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to complete project');
+        } finally {
+            setCompleting(false);
         }
     };
 
@@ -195,7 +266,7 @@ const ProjectDetailPage = () => {
 
     return (
         <div className="project-detail-page">
-            <div className="container" style={{ padding: '1.75rem 1.5rem 4rem' }}>
+            <div className="container project-detail-container" style={{ padding: '1.75rem 1.5rem 4rem' }}>
                 <button
                     onClick={() => navigate('/')}
                     className="btn btn-secondary"
@@ -213,8 +284,38 @@ const ProjectDetailPage = () => {
                                 {project.status.toUpperCase()}
                             </span>
                             {isClient && project.status === 'draft' && (
-                                <button className="btn btn-success" onClick={handleApprove}>
-                                    <CheckCircle size={18} /> Approve Project
+                                <>
+                                    {!showApproveForm ? (
+                                        <button className="btn btn-success" onClick={() => setShowApproveForm(true)}>
+                                            <CheckCircle size={18} /> Approve Project
+                                        </button>
+                                    ) : (
+                                        <motion.form
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            style={{ display: 'flex', alignItems: 'flex-end', gap: '0.75rem', flexWrap: 'wrap' }}
+                                            onSubmit={handleApprove}
+                                        >
+                                            <div className="input-group" style={{ margin: 0 }}>
+                                                <label className="input-label" style={{ fontSize: '0.75rem' }}>Deadline (optional)</label>
+                                                <input
+                                                    type="datetime-local"
+                                                    className="input-field"
+                                                    style={{ padding: '0.35rem 0.5rem', minWidth: '180px' }}
+                                                    value={approveDeadline}
+                                                    onChange={(e) => setApproveDeadline(e.target.value)}
+                                                />
+                                            </div>
+                                            <button type="submit" className="btn btn-success">Approve &amp; activate</button>
+                                            <button type="button" className="btn btn-secondary" onClick={() => { setShowApproveForm(false); setApproveDeadline(''); }}>Cancel</button>
+                                        </motion.form>
+                                    )}
+                                </>
+                            )}
+                            {isClient && project.status === 'active' && project.deliverables?.length > 0 &&
+                                project.deliverables.every((d) => d.status === 'accepted') && (
+                                <button className="btn btn-success" onClick={handleComplete} disabled={completing}>
+                                    <CheckCircle size={18} /> {completing ? 'Completing...' : 'Mark project complete'}
                                 </button>
                             )}
                         </div>
@@ -223,7 +324,11 @@ const ProjectDetailPage = () => {
                         <span>Freelancer: {project.freelancerId?.name || project.freelancerId}</span>
                         <span>Client: {project.clientId?.name || project.clientId}</span>
                         <span>Created: {new Date(project.createdAt).toLocaleDateString()}</span>
+                        {project.deadline && <span>Deadline: {new Date(project.deadline).toLocaleDateString()}</span>}
                     </div>
+                    {project.status === 'completed' && project.completedAt && (
+                        <CompletionSummary project={project} />
+                    )}
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: '1.25rem' }} className="responsive-grid">

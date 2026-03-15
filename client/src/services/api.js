@@ -69,8 +69,12 @@ export const projectAPI = {
         const response = await api.get(`/projects/${id}`);
         return response.data;
     },
-    approveProject: async (id) => {
-        const response = await api.patch(`/projects/${id}/approve`);
+    approveProject: async (id, body = {}) => {
+        const response = await api.patch(`/projects/${id}/approve`, body);
+        return response.data;
+    },
+    completeProject: async (id) => {
+        const response = await api.patch(`/projects/${id}/complete`);
         return response.data;
     },
     addChangeRequest: async (id, changeRequestData) => {
@@ -102,6 +106,47 @@ export const projectAPI = {
     },
     requestDeliverableRevision: async (projectId, deliverableId, feedback) => {
         const response = await api.patch(`/projects/${projectId}/deliverables/${deliverableId}/request-revision`, { feedback });
+        return response.data;
+    },
+    getProjectMessages: async (projectId) => {
+        const response = await api.get(`/projects/${projectId}/messages`);
+        return response.data;
+    },
+    sendProjectMessage: async (projectId, content) => {
+        const response = await api.post(`/projects/${projectId}/messages`, { content });
+        return response.data;
+    },
+};
+
+// ------------- Users API (freelancer search, profile) -------------
+export const usersAPI = {
+    getFreelancers: async (query = '') => {
+        const params = query ? { q: query } : {};
+        const response = await api.get('/users/freelancers', { params });
+        return response.data;
+    },
+    getUserProfile: async (userId) => {
+        const response = await api.get(`/users/${userId}`);
+        return response.data;
+    },
+};
+
+// ------------- Conversations API (user-to-user chat) -------------
+export const conversationAPI = {
+    getConversations: async () => {
+        const response = await api.get('/conversations');
+        return response.data;
+    },
+    getOrCreateConversation: async (otherUserId) => {
+        const response = await api.post('/conversations', { otherUserId });
+        return response.data;
+    },
+    getMessages: async (conversationId) => {
+        const response = await api.get(`/conversations/${conversationId}/messages`);
+        return response.data;
+    },
+    sendMessage: async (conversationId, content) => {
+        const response = await api.post(`/conversations/${conversationId}/messages`, { content });
         return response.data;
     },
 };

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, LogOut, User, ChevronDown, UserCircle } from 'lucide-react';
+import { ShieldCheck, LogOut, User, ChevronDown, UserCircle, MessageCircle, Users } from 'lucide-react';
 
 const Navbar = () => {
     const { user, logout, isAuthenticated } = useAuth();
@@ -36,7 +36,16 @@ const Navbar = () => {
                 </Link>
 
                 {isAuthenticated ? (
-                    <div className="navbar-flux-profile-wrap" ref={dropdownRef}>
+                    <div className="navbar-flux-actions">
+                        {user?.role === 'client' && (
+                            <Link to="/freelancers" className="navbar-flux-nav-link" title="Find Freelancers">
+                                <Users size={22} /> <span>Freelancers</span>
+                            </Link>
+                        )}
+                        <Link to="/messages" className="navbar-flux-nav-link" title="Messages">
+                            <MessageCircle size={22} /> <span>Messages</span>
+                        </Link>
+                        <div className="navbar-flux-profile-wrap" ref={dropdownRef}>
                         <button
                             type="button"
                             className="navbar-flux-profile-trigger"
@@ -64,6 +73,7 @@ const Navbar = () => {
                                 </button>
                             </div>
                         )}
+                        </div>
                     </div>
                 ) : (
                     <div className="flex-center" style={{ gap: '1rem' }}>

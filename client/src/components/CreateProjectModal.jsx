@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { projectAPI } from '../services/api';
 
+const initialFormState = () => ({
+    clientId: '',
+    title: '',
+    scopeChecklist: [''],
+    revisionLimit: 2,
+    deadline: '',
+});
+
 const CreateProjectModal = ({ isOpen, onClose, onProjectCreated }) => {
-    const [formData, setFormData] = useState({
-        clientId: '',
-        title: '',
-        scopeChecklist: [''], // Starts with one empty item
-        revisionLimit: 2
-    });
+    const [formData, setFormData] = useState(initialFormState());
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen) setFormData(initialFormState());
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -52,6 +59,8 @@ const CreateProjectModal = ({ isOpen, onClose, onProjectCreated }) => {
                 scopeChecklist: cleanChecklist,
                 revisionLimit: Number(formData.revisionLimit)
             };
+            if (!formData.deadline?.trim()) delete payload.deadline;
+            else payload.deadline = new Date(formData.deadline).toISOString();
 
             const res = await projectAPI.createProject(payload);
             toast.success('Project created successfully!');
@@ -145,6 +154,21 @@ const CreateProjectModal = ({ isOpen, onClose, onProjectCreated }) => {
                                 value={formData.revisionLimit}
                                 onChange={handleChange}
                             />
+                        </div>
+
+                        <div className="input-group">
+                            <label className="input-label" htmlFor="deadline">Deadline (optional)</label>
+                            <input
+                                type="datetime-local"
+                                name="deadline"
+                                id="deadline"
+                                className="input-field"
+                                value={formData.deadline}
+                                onChange={handleChange}
+                            />
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                                Early completion adds a trust score bonus; late completion applies a penalty.
+                            </div>
                         </div>
 
                         <div className="input-group">

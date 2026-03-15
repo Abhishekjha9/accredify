@@ -76,7 +76,8 @@ const approveProject = async (req, res, next) => {
     try {
         const project = await projectService.approveProject(
             req.params.id,
-            req.user._id
+            req.user._id,
+            { deadline: req.body.deadline }
         );
 
         res.status(200).json({
@@ -230,6 +231,50 @@ const requestDeliverableRevision = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Client marks project complete (all deliverables accepted). Updates trust score & scope metrics.
+ * @route   PATCH /api/projects/:id/complete
+ * @access  Client only
+ */
+const completeProject = async (req, res, next) => {
+    try {
+        const project = await projectService.completeProject(req.params.id, req.user._id);
+        res.status(200).json({ success: true, data: project });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get messages for a project (client or freelancer only)
+ * @route   GET /api/projects/:id/messages
+ */
+const getProjectMessages = async (req, res, next) => {
+    try {
+        const messages = await projectService.getProjectMessages(req.params.id, req.user._id);
+        res.status(200).json({ success: true, data: messages });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Send a message in a project (client or freelancer only)
+ * @route   POST /api/projects/:id/messages
+ */
+const sendProjectMessage = async (req, res, next) => {
+    try {
+        const message = await projectService.sendProjectMessage(
+            req.params.id,
+            req.user._id,
+            req.body.content
+        );
+        res.status(201).json({ success: true, data: message });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createProject,
     getProject,
@@ -241,4 +286,7 @@ module.exports = {
     addDeliverable,
     acceptDeliverable,
     requestDeliverableRevision,
+    completeProject,
+    getProjectMessages,
+    sendProjectMessage,
 };

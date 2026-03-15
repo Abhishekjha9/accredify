@@ -58,6 +58,11 @@ const projectSchema = new mongoose.Schema(
             },
             default: 'draft',
         },
+        /** Optional deadline (e.g. set when client approves). Used for trust scoring. */
+        deadline: { type: Date, default: null },
+        /** Set when project is marked complete. Used for deadline vs completion time. */
+        completedAt: { type: Date, default: null },
+        /** Computed when project completes: contribution to freelancer trust score. */
         trustImpact: {
             type: Number,
             default: 0,

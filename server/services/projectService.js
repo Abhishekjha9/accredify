@@ -1,5 +1,7 @@
 const Project = require('../models/Project');
 const ChangeRequest = require('../models/ChangeRequest');
+const Message = require('../models/Message');
+const { computeTrustImpact, applyTrustAndScopeOnComplete } = require('./trustScoreService');
 
 /**
  * Create a new project (freelancer-initiated).
@@ -32,7 +34,7 @@ const getProjectById = async (projectId) => {
 /**
  * Approve a project (set status to active). Only the assigned client can approve.
  */
-const approveProject = async (projectId, clientId) => {
+const approveProject = async (projectId, clientId, data = {}) => {
     const project = await Project.findById(projectId);
 
     if (!project) {
@@ -54,6 +56,7 @@ const approveProject = async (projectId, clientId) => {
     }
 
     project.status = 'active';
+    if (data.deadline) project.deadline = new Date(data.deadline);
     await project.save();
 
     return project;
@@ -241,6 +244,109 @@ const requestDeliverableRevision = async (projectId, deliverableId, clientId, fe
     return project;
 };
 
+/**
+ * Client marks project complete. All deliverables must be accepted.
+ * Sets completedAt, computes trustImpact, updates freelancer trust score and scope metrics.
+ */
+const completeProject = async (projectId, clientId) => {
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+        const error = new Error('Project not found');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (project.clientId.toString() !== clientId.toString()) {
+        const error = new Error('Only the assigned client can complete this project');
+        error.statusCode = 403;
+        throw error;
+    }
+
+    if (project.status !== 'active') {
+        const error = new Error('Only active projects can be marked complete');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const allAccepted =
+        project.deliverables &&
+        project.deliverables.length > 0 &&
+        project.deliverables.every((d) => d.status === 'accepted');
+
+    if (!allAccepted) {
+        const error = new Error('All deliverables must be accepted before completing the project');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    project.status = 'completed';
+    project.completedAt = new Date();
+    const trustImpact = computeTrustImpact({
+        ...project.toObject(),
+        completedAt: project.completedAt,
+    });
+    project.trustImpact = trustImpact;
+    await project.save();
+
+    await applyTrustAndScopeOnComplete(project);
+
+    return project;
+};
+
+/**
+ * Ensure user is the project's client or freelancer.
+ */
+const ensureParticipant = async (projectId, userId) => {
+    const project = await Project.findById(projectId).select('clientId freelancerId').lean();
+    if (!project) {
+        const error = new Error('Project not found');
+        error.statusCode = 404;
+        throw error;
+    }
+    const id = userId.toString();
+    if (project.clientId.toString() !== id && project.freelancerId.toString() !== id) {
+        const error = new Error('Only project client or freelancer can access this');
+        error.statusCode = 403;
+        throw error;
+    }
+    return project;
+};
+
+/**
+ * List messages for a project (oldest first). Caller must be participant.
+ */
+const getProjectMessages = async (projectId, userId) => {
+    await ensureParticipant(projectId, userId);
+    const messages = await Message.find({ projectId })
+        .sort({ createdAt: 1 })
+        .populate('senderId', 'name role')
+        .lean();
+    return messages;
+};
+
+/**
+ * Send a message in a project. Caller must be participant.
+ */
+const sendProjectMessage = async (projectId, userId, content) => {
+    await ensureParticipant(projectId, userId);
+    const trimmed = (content || '').trim();
+    if (!trimmed) {
+        const error = new Error('Message content is required');
+        error.statusCode = 400;
+        throw error;
+    }
+    const message = await Message.create({
+        projectId,
+        senderId: userId,
+        content: trimmed,
+    });
+    const populated = await Message.findById(message._id)
+        .populate('senderId', 'name role')
+        .lean();
+    return populated;
+};
+
 module.exports = {
     createProject,
     getProjectById,
@@ -252,4 +358,7 @@ module.exports = {
     addDeliverable,
     acceptDeliverable,
     requestDeliverableRevision,
+    completeProject,
+    getProjectMessages,
+    sendProjectMessage,
 };

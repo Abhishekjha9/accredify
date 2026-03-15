@@ -68,6 +68,7 @@ const DashboardPage = () => {
                     </div>
                     {isFreelancer && (
                         <button
+                            data-ai="create-project"
                             className="btn btn-primary"
                             onClick={() => setIsModalOpen(true)}
                             style={{ background: 'var(--flux-accent)', color: '#1a1d24' }}
@@ -142,6 +143,7 @@ const DashboardPage = () => {
                         </p>
                         {isFreelancer && (
                             <button
+                                data-ai="create-project"
                                 className="btn btn-primary"
                                 onClick={() => setIsModalOpen(true)}
                                 style={{ background: 'var(--flux-accent)', color: '#1a1d24' }}

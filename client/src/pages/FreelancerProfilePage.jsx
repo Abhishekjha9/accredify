@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { usersAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { ArrowLeft, User, Shield, TrendingUp, AlertTriangle, MessageCircle } from 'lucide-react';
+import { ArrowLeft, User, Shield, TrendingUp, AlertTriangle, MessageCircle, FolderOpen } from 'lucide-react';
 
 const FreelancerProfilePage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
     const [profile, setProfile] = useState(null);
+    const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -27,6 +28,13 @@ const FreelancerProfilePage = () => {
         };
         fetchProfile();
     }, [id, navigate]);
+
+    useEffect(() => {
+        if (!id || user?.role !== 'client') return;
+        usersAPI.getFreelancerProjects(id)
+            .then((res) => setProjects(res.data || []))
+            .catch(() => setProjects([]));
+    }, [id, user?.role]);
 
     const handleMessage = () => {
         navigate(`/messages?with=${id}`);
@@ -99,6 +107,42 @@ const FreelancerProfilePage = () => {
                         <div className="flux-metric-sub">Historical scope shifts</div>
                     </motion.div>
                 </div>
+
+                {user?.role === 'client' && projects.length > 0 && (
+                    <>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--flux-text)', marginBottom: '0.85rem' }}>Projects with this freelancer</h2>
+                        <div className="flux-card" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem' }}>
+                            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--flux-text)', marginBottom: '0.75rem' }}>Ongoing</h3>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1rem 0' }}>
+                                {projects.filter((p) => p.status === 'active').length === 0 ? (
+                                    <li style={{ color: 'var(--flux-text-muted)', fontSize: '0.9375rem' }}>No active projects</li>
+                                ) : (
+                                    projects.filter((p) => p.status === 'active').map((p) => (
+                                        <li key={p._id} style={{ marginBottom: '0.5rem' }}>
+                                            <Link to={`/projects/${p._id}`} className="btn btn-secondary" style={{ width: '100%', justifyContent: 'flex-start', textAlign: 'left' }}>
+                                                <FolderOpen size={18} style={{ flexShrink: 0 }} /> {p.title} · Active
+                                            </Link>
+                                        </li>
+                                    ))
+                                )}
+                            </ul>
+                            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--flux-text)', marginBottom: '0.75rem' }}>Past projects</h3>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                {projects.filter((p) => p.status !== 'active').length === 0 ? (
+                                    <li style={{ color: 'var(--flux-text-muted)', fontSize: '0.9375rem' }}>No past projects</li>
+                                ) : (
+                                    projects.filter((p) => p.status !== 'active').map((p) => (
+                                        <li key={p._id} style={{ marginBottom: '0.5rem' }}>
+                                            <Link to={`/projects/${p._id}`} className="btn btn-secondary" style={{ width: '100%', justifyContent: 'flex-start', textAlign: 'left' }}>
+                                                <FolderOpen size={18} style={{ flexShrink: 0 }} /> {p.title} · {p.status}
+                                            </Link>
+                                        </li>
+                                    ))
+                                )}
+                            </ul>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

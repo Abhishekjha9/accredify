@@ -38,11 +38,11 @@ const Navbar = () => {
                 {isAuthenticated ? (
                     <div className="navbar-flux-actions">
                         {user?.role === 'client' && (
-                            <Link to="/freelancers" className="navbar-flux-nav-link" title="Find Freelancers">
+                            <Link to="/freelancers" className="navbar-flux-nav-link" title="Find Freelancers" data-ai="nav-freelancers">
                                 <Users size={22} /> <span>Freelancers</span>
                             </Link>
                         )}
-                        <Link to="/messages" className="navbar-flux-nav-link" title="Messages">
+                        <Link to="/messages" className="navbar-flux-nav-link" title="Messages" data-ai="nav-messages">
                             <MessageCircle size={22} /> <span>Messages</span>
                         </Link>
                         <div className="navbar-flux-profile-wrap" ref={dropdownRef}>

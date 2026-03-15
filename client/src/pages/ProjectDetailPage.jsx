@@ -420,9 +420,15 @@ const ProjectDetailPage = () => {
                                                     )}
                                                 </div>
                                                 {d.description && <p style={{ fontSize: '0.875rem', color: 'var(--flux-text-muted)', margin: '0.25rem 0' }}>{d.description}</p>}
-                                                <a href={d.link.startsWith('http') ? d.link : (d.link.startsWith('/') ? d.link : '/' + d.link)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.875rem', color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
-                                                    {d.type === 'file' ? 'Open file' : 'Open link'} <ExternalLink size={14} />
-                                                </a>
+                                                {isClient ? (
+                                                    <span style={{ fontSize: '0.875rem', color: 'var(--flux-text-muted)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
+                                                        {d.type === 'file' ? 'File submitted' : 'Link submitted'} — not viewable by client
+                                                    </span>
+                                                ) : (
+                                                    <a href={d.link.startsWith('http') ? d.link : (d.link.startsWith('/') ? d.link : '/' + d.link)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.875rem', color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
+                                                        {d.type === 'file' ? 'Open file' : 'Open link'} <ExternalLink size={14} />
+                                                    </a>
+                                                )}
                                                 {d.status === 'revision_requested' && d.clientFeedback && (
                                                     <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: 'var(--flux-main-bg)', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0', borderLeft: '3px solid var(--warning)', display: 'flex', gap: '0.5rem' }}>
                                                         <MessageSquare size={16} color="var(--warning)" style={{ flexShrink: 0 }} />
